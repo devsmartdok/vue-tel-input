@@ -476,10 +476,6 @@ export default {
     },
     cleanInvalidCharacters() {
       const currentPhone = this.phone;
-      if (this.validCharactersOnly) {
-        const results = this.phone.match(/[()\-+0-9\s]*/g);
-        this.phone = results.join('');
-      }
 
       if (this.customValidate && this.customValidate instanceof RegExp) {
         const results = this.phone.match(this.customValidate);
@@ -492,7 +488,7 @@ export default {
     },
     testCharacters() {
       if (this.validCharactersOnly) {
-        const result = /^[()\-+0-9\s]*$/.test(this.phone);
+        const result = /^[()+0-9\s]*$/.test(this.phone);
         if (!result) {
           return false;
         }
