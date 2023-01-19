@@ -367,8 +367,17 @@ export default {
          * 1. If the phone included prefix (i.e. +12), try to get the country and set it
          */
         if (this.phone?.[0] === '+') {
-          resolve();
-          return;
+          const maybeValidPhone = parsePhoneNumberFromString(this.phone);
+
+          if (maybeValidPhone && maybeValidPhone.countryCallingCode) {
+            const maybeCountry = this.findCountryByDialCode(maybeValidPhone.countryCallingCode);
+
+            if (maybeCountry) {
+              this.choose(maybeCountry.iso2);
+              resolve();
+              return;
+            }
+          }
         }
         /**
          * 2. Use default country if passed from parent
