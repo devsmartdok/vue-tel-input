@@ -17,7 +17,7 @@
       <span class="vti__selection">
         <span
           v-if="dropdownOptions.showFlags"
-          :class="['vti__flag', activeCountryCode.toLowerCase()]"
+          :class="['vti__flag', activeCountryCss]"
         ></span>
         <span v-if="dropdownOptions.showDialCodeInSelection" class="vti__country-code">
           +{{ activeCountry && activeCountry.dialCode }}
@@ -195,6 +195,9 @@ export default {
     activeCountry() {
       return this.findCountry(this.activeCountryCode);
     },
+    activeCountryCss() {
+      return this.activeCountryCode ? this.activeCountryCode.toLowerCase() : 'none';
+    },
     parsedMode() {
       if (this.mode === 'auto') {
         if (!this.phone || this.phone[0] !== '+') {
@@ -367,63 +370,24 @@ export default {
          * 1. If the phone included prefix (i.e. +12), try to get the country and set it
          */
         if (this.phone?.[0] === '+') {
-          const maybeValidPhone = parsePhoneNumberFromString(this.phone);
+            const maybeValidPhone = parsePhoneNumberFromString(this.phone);
 
-          if (maybeValidPhone && maybeValidPhone.countryCallingCode) {
-            const maybeCountry = this.findCountryByDialCode(maybeValidPhone.countryCallingCode);
+          if (maybeValidPhone && maybeValidPhone.country) {
+            this.choose(maybeValidPhone.country);
+          }
 
-            if (maybeCountry) {
-              this.choose(maybeCountry.iso2);
-              resolve();
-              return;
-            }
-          }
-        }
-        /**
-         * 2. Use default country if passed from parent
-         */
-        if (this.defaultCountry) {
-          if (typeof this.defaultCountry === 'string') {
-            this.choose(this.defaultCountry);
-            resolve();
-            return;
-          }
-          if (typeof this.defaultCountry === 'number') {
-            const country = this.findCountryByDialCode(this.defaultCountry);
-            if (country) {
-              this.choose(country.iso2);
-              resolve();
-              return;
-            }
-          }
-        }
-
-        const fallbackCountry = this.preferredCountries[0] || this.filteredCountries[0];
-        /**
-         * 3. Check if fetching country based on user's IP is allowed, set it as the default country
-         */
-        if (this.autoDefaultCountry) {
-          getCountry()
-            .then((res) => {
-              this.choose(res || this.activeCountryCode);
-            })
-            .catch((error) => {
-              console.warn(error);
-              /**
-               * 4. Use the first country from preferred list (if available) or all countries list
-               */
-              this.choose(fallbackCountry);
-            })
-            .then(() => {
-              resolve();
-            });
-        } else {
-          /**
-           * 4. Use the first country from preferred list (if available) or all countries list
-           */
-          this.choose(fallbackCountry);
           resolve();
+          return;
         }
+
+        if (typeof this.defaultCountry === 'string') {
+          this.choose(this.defaultCountry);
+          resolve();
+          return;
+        }
+
+        this.choose(this.preferredCountries[0] || this.filteredCountries[0]);
+        resolve();
       });
     },
     /**
