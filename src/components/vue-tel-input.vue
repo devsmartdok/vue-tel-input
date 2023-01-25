@@ -277,10 +277,6 @@ export default {
         this.activeCountryCode = oldValue.iso2;
         return;
       }
-      if (value?.iso2) {
-        this.$emit('country-changed', value);
-        // this.resetPlaceholder();
-      }
     },
     'phoneObject.countryCode': function (value) {
       this.activeCountryCode = value || '';
@@ -292,7 +288,7 @@ export default {
       if (!this.autoFormat || this.customValidate) {
         return;
       }
-      this.emitInput(value);
+      this.emitChange(value);
 
       this.$nextTick(() => {
         // In case `v-model` is not set, we need to update the `phone` to be new formatted value
@@ -426,17 +422,10 @@ export default {
       if (!parsedCountry) {
         return;
       }
-      if (this.phone?.[0] === '+'
-        && parsedCountry.iso2
-        && this.phoneObject.nationalNumber) {
+      if (this.phone?.[0] === '+' && parsedCountry.iso2 && this.phoneObject.nationalNumber) {
         this.activeCountryCode = parsedCountry.iso2;
         // Attach the current phone number with the newly selected country
-        this.phone = parsePhoneNumberFromString(
-          this.phoneObject.nationalNumber,
-          parsedCountry.iso2,
-        )
-          .formatInternational();
-        return;
+        this.phone = parsePhoneNumberFromString(this.phoneObject.nationalNumber, parsedCountry.iso2).formatInternational();
       }
 
       if (this.inputOptions?.showDialCode && parsedCountry) {
@@ -448,7 +437,7 @@ export default {
 
       // update value, even if international mode is NOT used
       this.activeCountryCode = parsedCountry.iso2 || '';
-      this.emitInput(this.phone);
+      this.emitChange(this.phone);
     },
     cleanInvalidCharacters() {
       const currentPhone = this.phone;
@@ -459,7 +448,7 @@ export default {
       }
 
       if (currentPhone !== this.phone) {
-        this.emitInput(this.phone);
+        this.emitChange(this.phone);
       }
     },
     testCharacters() {
@@ -482,11 +471,11 @@ export default {
       // Returns response.number to assign it to v-model (if being used)
       // Returns full response for cases @input is used
       // and parent wants to return the whole response.
-      this.emitInput(this.phone);
+      this.emitChange(this.phone);
     },
-    emitInput(value) {
+    emitChange(value) {
       this.$emit('update:modelValue', value);
-      this.$emit('on-input', value, this.phoneObject, this.$refs.input);
+      this.$emit('on-change', value, this.phoneObject, this.$refs.input);
     },
     onBlur() {
       this.$emit('blur');
