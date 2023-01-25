@@ -425,7 +425,8 @@ export default {
       if (this.phone?.[0] === '+' && parsedCountry.iso2 && this.phoneObject.nationalNumber) {
         this.activeCountryCode = parsedCountry.iso2;
         // Attach the current phone number with the newly selected country
-        this.phone = parsePhoneNumberFromString(this.phoneObject.nationalNumber, parsedCountry.iso2).formatInternational();
+        const newPhoneNumber = parsePhoneNumberFromString(this.phoneObject.nationalNumber, parsedCountry.iso2);
+        this.phone = this.autoFormat ? newPhoneNumber.formatInternational() : newPhoneNumber.number;
       }
 
       if (this.inputOptions?.showDialCode && parsedCountry) {
