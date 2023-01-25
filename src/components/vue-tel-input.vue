@@ -374,6 +374,9 @@ export default {
 
           if (maybeValidPhone && maybeValidPhone.country) {
             this.choose(maybeValidPhone.country);
+          } else if (maybeValidPhone && maybeValidPhone.countryCallingCode) {
+            const country = this.findCountryByDialCode(parseInt(maybeValidPhone.countryCallingCode));
+            this.choose(country);
           }
 
           resolve();
