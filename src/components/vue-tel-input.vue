@@ -157,6 +157,10 @@ export default {
       type: String,
       default: () => getDefault('invalidMsg'),
     },
+    displayMode: {
+      type: String,
+      default: () => getDefault('displayMode'),
+    },
     mode: {
       type: String,
       default: () => getDefault('mode'),
@@ -426,7 +430,7 @@ export default {
         this.activeCountryCode = parsedCountry.iso2;
         // Attach the current phone number with the newly selected country
         const newPhoneNumber = parsePhoneNumberFromString(this.phoneObject.nationalNumber, parsedCountry.iso2);
-        this.phone = this.autoFormat ? newPhoneNumber.formatInternational() : newPhoneNumber.number;
+        this.phone = this.displayMode === 'international' ? newPhoneNumber.formatInternational() : newPhoneNumber.nationalNumber;
       }
 
       if (this.inputOptions?.showDialCode && parsedCountry) {
@@ -469,12 +473,19 @@ export default {
     },
     onInput() {
       this.$refs.input.setCustomValidity(this.phoneObject.valid ? '' : this.invalidMsg);
+
       // Returns response.number to assign it to v-model (if being used)
       // Returns full response for cases @input is used
       // and parent wants to return the whole response.
       this.emitChange(this.phone);
     },
     emitChange(value) {
+      const phoneObject = (value?.[0] === '+' ? parsePhoneNumberFromString(value) : parsePhoneNumberFromString(value, this.activeCountryCode)) || {};
+
+      if (this.displayMode === 'national' && typeof phoneObject.nationalNumber === 'string' && value !== phoneObject.nationalNumber) {
+        value = phoneObject.nationalNumber;
+      }
+
       this.$emit('update:modelValue', value);
       this.$emit('on-change', value, this.phoneObject, this.$refs.input);
     },

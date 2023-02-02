@@ -234,6 +234,14 @@ export const allProps = [
     inDemo: false,
   },
   {
+    name: 'displayMode',
+    default: 'national',
+    type: String,
+    description: 'Allowed values: <code>\'international\'</code> (Format number with the dial code i.e. + 61), <code>\'national\'</code> (Format number without dial code i.e. 0321232)',
+    inDemo: true,
+    options: ['national', 'international'],
+  },
+  {
     name: 'mode',
     default: 'auto',
     type: String,
